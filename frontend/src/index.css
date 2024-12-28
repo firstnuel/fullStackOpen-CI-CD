@@ -1,0 +1,140 @@
+@font-face {
+    font-family: 'PlaywrightHU';
+    src: url('./assets/fonts/PlaywriteHU-VariableFont_wght.ttf') format('truetype');
+    font-weight: 100 900; 
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('./assets/fonts/Poppins-Regular.ttf') format('ttf');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    background-color: rgb(206, 156, 63);
+}   
+
+.title {
+    font-family: 'PlaywrightHU', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color:  rgb(54, 70, 54);
+    margin: 1rem 0;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 10vh;
+    flex-wrap: wrap;
+    
+}
+
+button {
+    border: none;
+    color: rgb(206, 156, 63);
+    background-color: rgb(54, 70, 54);
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+button:hover {
+    background-color: rgb(97, 131, 99);
+}
+
+a:link {
+    text-decoration: none;
+    color :  rgb(54, 70, 54);
+  }
+a:visited {
+    text-decoration: none;
+    color: rgb(54, 70, 54);
+  }
+a:hover {
+    text-decoration: none;
+    color: rgb(97, 131, 99);
+  }
+a:active {
+    text-decoration: underline;
+  }
+
+input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgb(54, 70, 54);
+    border-radius: 5px;
+    font-size: 1rem;
+    color :  rgb(54, 70, 54);
+}  
+
+.form {
+    width: 80%;
+    max-width: 500px;
+}
+
+.login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 90vh;
+    position: relative;
+    bottom: 10vh;
+    left: 20vw;
+}
+.comment {
+    width: 30%;
+    height: 2em;
+    margin-right: 10px;
+}
+
+.blog{
+    margin: 15px;
+    border: 1px solid rgb(54, 70, 54);
+    padding: 5px 10px;
+    margin-bottom: 5px; 
+    border-radius: 10px; 
+}
+
+.user {
+    font-size: 1rem;
+    font-weight: 600;
+    color:  rgb(54, 70, 54);
+    font-family: sans-serif;
+}
+
+.create{
+    color:  rgb(54, 70, 54);
+    font-size: 1rem;
+}
+
+.unblock {
+    display: inline;
+}
+
+.createButtons{
+    display: flex;
+    gap: 10px;
+}
+
+.cancelButton {
+    background-color: gray;
+    color: rgb(206, 156, 63);
+}   
+
+.users{
+    color:  rgb(54, 70, 54);
+}
