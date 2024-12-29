@@ -1,4 +1,4 @@
-name: Deployment pipeline
+name:  Blog list Deployment pipeline
 
 on:
     push:
@@ -17,55 +17,62 @@ env:
 jobs:
     test:
         runs-on: ubuntu-latest
+        name: Blog list -  test and lint the code
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+
             - name: Cache dependencies
               id: cache
               uses: actions/cache@v4
               with:
                 path: node_modules
                 key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}
+
             - name: Install dependencies
               if: ${{ steps.cache.outcome != 'true' }}
               run: npm ci
+
             - name: Lint code
               run: npm run eslint
-              continue-on-error: true
+
+
             - name: Run tests
               run: npm test
-            - name: Notify Failure
-              uses: rjstone/discord-webhook-notify@v1
+
+            - name: Notify Discord on failure
               if: failure()
+              env:
+                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+                DISCORD_USERNAME: GitHub Actions
+                DISCORD_EMBEDS: |
+                  [{
+                    "title": "Tests failed!",
+                    "color": 16711680,
+                    "description": "Commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) caused the build to fail. Check the [logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more information.",
+                    "footer": {
+                      "text": "Severity: Error"
+                    }
+                  }]
+              uses: 'Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9'
               with:
-                severity: error
-                details: "Commit ${{ github.event.pull_request.head.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})broke the build by @${{ github.actor }}."
-                text: "Build Failed!"
-                webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-            
+                args: 'The project Bloglist failed to build.'
+
     deploy:
       needs: test
-      name: Deploy app
+      name: Deploy app to fly.io
       runs-on: ubuntu-latest
       concurrency: deploy-group    
-      if: ${{  (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event.pull_request.merged == 'true' && contains(join(github.event.commits.*.message, ' '), '#skip') == 'false')}}
+      if: github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip')
       steps:
         - uses: actions/checkout@v4
         - uses: superfly/flyctl-actions/setup-flyctl@master
         - run: flyctl deploy --remote-only
           env:
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        - name: Notify Success
-          uses: rjstone/discord-webhook-notify@v1
-          if: success()
-          with:
-            severity: info
-            details: "The app was successfully deployed to Fly!"
-            text: "A new version of Blog App deployed"
-            footer: " severity: informational."
-            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       
     tag_release:
+      name: Tag and Release the code
       needs: deploy
       runs-on: ubuntu-latest
       permissions:
@@ -80,3 +87,22 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             DEFAULT_BUMP: patch
             WITH_V : true
+
+        - name: Notify Discord on success
+          if: success()
+          env:
+            DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+            DISCORD_USERNAME: GitHub Actions
+            DISCORD_EMBEDS: |
+              [{
+                "title": "New version deployed!",
+                "color": 65280,
+                "description": "A new version of Bloglist deployed successfully. Check it out [here](https://bloglist-winter-snowflake-5257.fly.dev/).",
+                "footer": {
+                  "text": "Severity: Info"
+                }
+              }]
+          uses: 'Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9'
+          with:
+            args: 'Project Bloglist deployed successfully.'
+            
