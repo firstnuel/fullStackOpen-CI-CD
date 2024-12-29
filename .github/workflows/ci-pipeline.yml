@@ -51,6 +51,8 @@ jobs:
     tag_release:
       needs: deploy
       runs-on: ubuntu-latest
+      permissions:
+        contents: write
       if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
       steps:
         - uses: actions/checkout@v4
