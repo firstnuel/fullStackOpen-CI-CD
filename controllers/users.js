@@ -5,12 +5,14 @@ const User = require('../models/user')
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
-  if (!username || username.length < 3 || !password || password.length < 3) return response.status(400).json({
-    error: 'username or name is less than minLength of (3)' })
-
+  if (!username || username.length < 3 || !password || password.length < 3) {
+    return response.status(400).json({
+      error: 'username or name is less than minLength of (3)' })
+}
   const usernameExists = await User.findOne({ username }).exec()
-  if(usernameExists)
+  if(usernameExists) {
     return response.status(400).json({ error: 'expected `username` to be unique' })
+  }
 
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(password, saltRounds)
