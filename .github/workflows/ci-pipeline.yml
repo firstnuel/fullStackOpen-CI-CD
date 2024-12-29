@@ -40,9 +40,25 @@ jobs:
       name: Deploy app
       runs-on: ubuntu-latest
       concurrency: deploy-group    
+      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
       steps:
         - uses: actions/checkout@v4
         - uses: superfly/flyctl-actions/setup-flyctl@master
         - run: flyctl deploy --remote-only
           env:
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+    tag_release:
+      needs: deploy
+      runs-on: ubuntu-latest
+      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: '0'
+        - name: Bump version and push tag
+          uses: anothrNick/github-tag-action@1.71.0
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            DEFAULT_BUMP: patch
+            WITH_V : true
