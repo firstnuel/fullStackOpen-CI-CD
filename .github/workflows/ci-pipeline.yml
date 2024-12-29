@@ -39,9 +39,7 @@ jobs:
               if: failure()
               with:
                 severity: error
-                details: >
-                  Commit [${{ github.event.pull_request.head.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
-                  broke the build by @${{ github.actor }}.
+                details: "Commit ${{ github.event.pull_request.head.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})broke the build by @${{ github.actor }}."
                 text: "Build Failed!"
                 webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
             
@@ -62,9 +60,9 @@ jobs:
           if: success()
           with:
             severity: info
-            details: "The app was successfully deployed to Fly! \nDeployed by @${{ github.actor }}."
+            details: "The app was successfully deployed to Fly!"
             text: "A new version of Blog App deployed"
-            footer: " severity: infoformational."
+            footer: " severity: informational."
             webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       
     tag_release:
