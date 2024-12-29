@@ -34,7 +34,17 @@ jobs:
               continue-on-error: true
             - name: Run tests
               run: npm test
-
+            - name: Notify Failure
+              uses: rjstone/discord-webhook-notify@v1
+              if: failure()
+              with:
+                severity: error
+                details: >
+                  Commit [${{ github.event.pull_request.head.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
+                  broke the build by @${{ github.actor }}.
+                text: "Build Failed!"
+                webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+            
     deploy:
       needs: test
       name: Deploy app
@@ -47,6 +57,15 @@ jobs:
         - run: flyctl deploy --remote-only
           env:
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        - name: Notify Success
+          uses: rjstone/discord-webhook-notify@v1
+          if: success()
+          with:
+            severity: info
+            details: "The app was successfully deployed to Fly! \nDeployed by @${{ github.actor }}."
+            text: "A new version of Blog App deployed"
+            footer: " severity: infoformational."
+            webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
       
     tag_release:
       needs: deploy
