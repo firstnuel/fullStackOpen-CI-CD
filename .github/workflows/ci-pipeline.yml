@@ -40,7 +40,7 @@ jobs:
       name: Deploy app
       runs-on: ubuntu-latest
       concurrency: deploy-group    
-      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
+      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event.pull_request.merged == true && contains(join(github.event.commits.*.message, ' '), '#skip') == false) }}
       steps:
         - uses: actions/checkout@v4
         - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -53,7 +53,6 @@ jobs:
       runs-on: ubuntu-latest
       permissions:
         contents: write
-      if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event.pull_request.merged == true }}
       steps:
         - uses: actions/checkout@v4
           with:
