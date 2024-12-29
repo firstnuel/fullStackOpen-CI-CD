@@ -8,7 +8,7 @@ usersRouter.post('/', async (request, response) => {
   if (!username || username.length < 3 || !password || password.length < 3) {
     return response.status(400).json({
       error: 'username or name is less than minLength of (3)' })
-}
+  }
   const usernameExists = await User.findOne({ username }).exec()
   if(usernameExists) {
     return response.status(400).json({ error: 'expected `username` to be unique' })

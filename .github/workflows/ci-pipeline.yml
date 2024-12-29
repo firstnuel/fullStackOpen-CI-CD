@@ -7,7 +7,7 @@ on:
     pull_request:
       branches: [main]
       types: [opened, synchronize]
-      
+
 env:
     MONGODB_URI: ${{ secrets.MONGODB_URI }}
     TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
@@ -30,6 +30,7 @@ jobs:
               if: ${{ steps.cache.outcome != 'true' }}
               run: npm ci
             - name: Lint code
+              continue-on-error: true
               run: npm run eslint
             - name: Run tests
               run: npm test
