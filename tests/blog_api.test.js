@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
 const api = supertest(app)
-
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
 const User = require('../models/user')
@@ -269,6 +268,6 @@ describe('invalid users are not created ', () => {
 
 after(async () => {
   await User.deleteMany({})
-  // await Blog.deleteMany({})
+  await Blog.deleteMany({})
   await mongoose.connection.close()
 })
