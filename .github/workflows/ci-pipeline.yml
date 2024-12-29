@@ -1,108 +1,112 @@
 name:  Blog list Deployment pipeline
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-      branches: [main]
-      types: [opened, synchronize]
+  push:
+    branches:
+        - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
       
 env:
-    MONGODB_URI: ${{ secrets.MONGODB_URI }}
-    TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
-    SECRET: ${{ secrets.SECRET }}
-    PORT: 3000
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  TEST_MONGODB_URI: ${{ secrets.TEST_MONGODB_URI }}
+  SECRET: ${{ secrets.SECRET }}
+  PORT: 3000
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        name: Blog list -  test and lint the code
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+  test:
+    runs-on: ubuntu-latest
+    name: Blog list -  test and lint the code
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
 
-            - name: Cache dependencies
-              id: cache
-              uses: actions/cache@v4
-              with:
-                path: node_modules
-                key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}
-
-            - name: Install dependencies
-              if: ${{ steps.cache.outcome != 'true' }}
-              run: npm ci
-
-            - name: Lint code
-              run: npm run eslint
-
-
-            - name: Run tests
-              run: npm test
-
-            - name: Notify Discord on failure
-              if: failure()
-              env:
-                DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-                DISCORD_USERNAME: GitHub Actions
-                DISCORD_EMBEDS: |
-                  [{
-                    "title": "Tests failed!",
-                    "color": 16711680,
-                    "description": "Commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) caused the build to fail. Check the [logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more information.",
-                    "footer": {
-                      "text": "Severity: Error"
-                    }
-                  }]
-              uses: 'Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9'
-              with:
-                args: 'The project Bloglist failed to build.'
-
-    deploy:
-      needs: test
-      name: Deploy app to fly.io
-      runs-on: ubuntu-latest
-      concurrency: deploy-group    
-      if: github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip')
-      steps:
-        - uses: actions/checkout@v4
-        - uses: superfly/flyctl-actions/setup-flyctl@master
-        - run: flyctl deploy --remote-only
-          env:
-            FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-      
-    tag_release:
-      name: Tag and Release the code
-      needs: deploy
-      runs-on: ubuntu-latest
-      permissions:
-        contents: write
-      steps:
-        - uses: actions/checkout@v4
+        - name: Cache dependencies
+          id: cache
+          uses: actions/cache@v4
           with:
-            fetch-depth: '0'
-        - name: Bump version and push tag
-          uses: anothrNick/github-tag-action@1.71.0
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            DEFAULT_BUMP: patch
-            WITH_V : true
+            path: node_modules
+            key: ${{ runner.os }}-${{ hashFiles('**/package.json') }}
 
-        - name: Notify Discord on success
-          if: success()
+        - name: Install dependencies
+          if: ${{ steps.cache.outcome != 'true' }}
+          run: npm ci
+
+        - name: Lint code
+          run: npm run eslint
+
+        - name: Run tests
+          run: npm test
+
+        - name: Notify Discord on failure
+          if: failure()
           env:
             DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
             DISCORD_USERNAME: GitHub Actions
             DISCORD_EMBEDS: |
               [{
-                "title": "New version deployed!",
-                "color": 65280,
-                "description": "A new version of Bloglist deployed successfully. Check it out [here](https://bloglist-winter-snowflake-5257.fly.dev/).",
+                "title": "Tests failed!",
+                "color": 16711680,
+                "description": "Commit [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) caused the build to fail. Check the [logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more information.",
                 "footer": {
-                  "text": "Severity: Info"
+                  "text": "Severity: Error"
                 }
               }]
           uses: 'Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9'
           with:
-            args: 'Project Bloglist deployed successfully.'
-            
+            args: 'Bloglist app deployed successfully.'
+
+  deploy:
+    needs: test
+    name: Deploy app to fly.io
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    
+    if: github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      - name: Health check for deployed service URL
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: https://fullstack-ci-cd-floral-sunset-5336.fly.dev/health
+      
+  tag_release:
+    name: Tag and Release the code
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V : true
+
+      - name: Notify Discord on success
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: GitHub Actions
+          DISCORD_EMBEDS: |
+            [{
+              "title": "New version deployed!",
+              "color": 65280,
+              "description": "A new version of Bloglist deployed successfully. Check it out [here](https://bloglist-winter-snowflake-5257.fly.dev/).",
+              "footer": {
+                "text": "Severity: Info"
+              }
+            }]
+        uses: 'Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9'
+        with:
+          args: 'Bloglist app deployed successfully.'
+          
