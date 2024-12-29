@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 
+
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
@@ -9,6 +10,7 @@ usersRouter.post('/', async (request, response) => {
     error: 'username or name is less than minLength of (3)' })
 
   const usernameExists = await User.findOne({ username }).exec()
+  console.log(usernameExists)
   if(usernameExists)
     return response.status(400).json({ error: 'expected `username` to be unique' })
 
@@ -21,9 +23,9 @@ usersRouter.post('/', async (request, response) => {
     passwordHash,
   })
 
-  await user.save()
+  const savedUser = await user.save()
 
-  response.status(201).json({ message: 'User created successfully', status: 'success' })
+  response.status(201).json(savedUser)
 })
 
 

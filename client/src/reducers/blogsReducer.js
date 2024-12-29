@@ -47,6 +47,7 @@ export const addLike = (blogToUpdate) => {
         dispatch(setNotification('likes updated', true))
       }
     } catch (error) {
+      console.log(error)
       const errMsg = 'could not update likes'
       dispatch(setNotification(errMsg, false))
     }
@@ -63,6 +64,7 @@ export const createNew = (newBlog) => {
         dispatch(setNotification(successMsg, true))
       }
     } catch (error) {
+      console.log(error)
       const errMsg = error.response?.data?.error || 'Failed to create blog'
       dispatch(setNotification(errMsg, false))
     }
@@ -78,6 +80,7 @@ export const removeBlog = (blogToDelete) => {
         dispatch(setNotification('Blog deleted', true))
       }
     } catch (error) {
+      console.log(error)
       const errMsg = 'could not delete blog'
       dispatch(setNotification(errMsg, false))
     }

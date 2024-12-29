@@ -42,6 +42,7 @@ export const logInUser = (userDetails) => {
         dispatch(setNotification('Login successful', true))
       }
     } catch (error) {
+      console.log(error)
       const errMsg = 'wrong username or password'
       dispatch(setNotification(errMsg, false))
     }
