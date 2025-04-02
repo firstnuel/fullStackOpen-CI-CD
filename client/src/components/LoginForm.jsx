@@ -2,6 +2,7 @@ import Notification from './Notification'
 import { logInUser } from '../reducers/userReducer'
 import { useDispatch } from 'react-redux'
 import { useField } from '../hooks'
+import RegisterForm from './RegisterForm'
 
 const LoginForm = () => {
   const { reset: usernameReset, ...username } = useField('username')
@@ -17,7 +18,8 @@ const LoginForm = () => {
   }
 
   return (
-    <div className='login form'>
+    <>
+    <div className='login form' id='login'>
       <h2>log into application</h2>
       <Notification />
       <form onSubmit={handleLogin}>
@@ -33,8 +35,13 @@ const LoginForm = () => {
             type="password" />
         </div>
         <button type="submit">login</button>
+        <p>Dont have an account? <a href="#register">Register</a></p>
       </form>
     </div>
+
+
+    <RegisterForm />
+    </>
   )
 }
 
