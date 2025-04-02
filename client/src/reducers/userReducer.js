@@ -48,3 +48,18 @@ export const logInUser = (userDetails) => {
     }
   }
 }
+
+export const registerUser = (registerData) => {
+  return async (dispatch) => {
+    try {
+      const user = await loginService.register(registerData)
+      if (user) {
+        dispatch(setNotification('Registration successful, plese login..', true))
+      }
+    } catch (error) {
+      console.log(error)
+      const errMsg = 'Registration successful'
+      dispatch(setNotification(errMsg, false))
+    }
+  }
+}

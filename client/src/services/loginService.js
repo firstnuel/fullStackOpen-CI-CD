@@ -16,4 +16,11 @@ const users = async () => {
   return response.data
 }
 
-export default { login, users }
+const register = async (registerData) => {
+
+  const response = await axios.post(userUrl, registerData)
+  return response.data
+}
+
+
+export default { login, users, register }
