@@ -38,7 +38,6 @@ jobs:
 
         - name: Run tests
           run: npm test
-          continue-on-error: true
 
         - name: Notify Discord on failure
           if: failure()
